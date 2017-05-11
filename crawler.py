@@ -48,7 +48,7 @@ def crawl_page(zipcode, page_num, verbose=False):
         return []
 
     restaurants = soup.findAll('div', attrs={'class':re.compile
-            (r'^search-result natural-search-result')})
+    (r'^search-result natural-search-result')})
     try:
         assert(len(restaurants) == 10)
     except AssertionError, e:
@@ -87,6 +87,7 @@ def crawl_page(zipcode, page_num, verbose=False):
         tv = ''
         caters = ''
         wheelchairAccessible = ''
+        website = ''
         try:
             img = r.div('div', {'class':'media-avatar'})[0].img['src']
         except Exception, e:
@@ -96,7 +97,8 @@ def crawl_page(zipcode, page_num, verbose=False):
         except Exception, e:
             if verbose: print 'title extract fail', str(e)
         try:
-            yelpPage = r.find('a', {'class':'biz-name'})['href']
+            yelpPage = r.find('a', {'class':['biz-name','js-analytics-click']})['href']
+            print yelpPage
         except Exception, e:
             if verbose: print 'yelp page link extraction fail', str(e)
             continue
@@ -113,23 +115,26 @@ def crawl_page(zipcode, page_num, verbose=False):
             addr = r.find('div', {'class':'secondary-attributes'}).address.getText()
         except Exception, e:
             if verbose: print 'address extract fail', str(e)
-        try:
-            phone = r.find('div', {'class':'secondary-attributes'}).span.getText()
-        except Exception, e:
-            if verbose: print 'phone extract fail', str(e)
 
         time.sleep(random.randint(1, 2) * .931467298)
         try:
             soup2 = BeautifulSoup(urllib2.urlopen(urljoin('http://www.yelp.com',
-                                                        yelpPage)).read())
-            r2 = soup2.findAll('div', {'id':'main'})
+                                                          yelpPage)).read())
+            try:
+                website = soup2.find('span', {'class':"biz-website js-add-url-tagging"}).a.getText()
+            except Exception, e:
+                if verbose: print 'website extract fail', str(e)
+            try:
+                phone = soup2.find('span', {'class':'biz-phone'}).getText()
+            except Exception, e:
+                if verbose: print 'phone extract fail', str(e)
             try:
                 price = soup2.find('dd', {'class':'attr-RestaurantsPriceRange2'}).getText()
             except Exception, e:
                 if verbose: print 'price extract fail', str(e)
             try:
                 creditCards = soup2.find('dd',
-                    {'class':'attr-BusinessAcceptsCreditCards'}).getText()
+                                         {'class':'attr-BusinessAcceptsCreditCards'}).getText()
             except Exception, e:
                 if verbose: print 'creditCard extract fail', str(e)
             try:
@@ -150,7 +155,7 @@ def crawl_page(zipcode, page_num, verbose=False):
                 if verbose: print 'kids extract fail', str(e)
             try:
                 reservations = soup2.find('dd',
-                    {'class':'attr-RestaurantsReservations'}).getText()
+                                          {'class':'attr-RestaurantsReservations'}).getText()
             except Exception, e:
                 if verbose: print 'reservations extract fail', str(e)
             try:
@@ -163,7 +168,7 @@ def crawl_page(zipcode, page_num, verbose=False):
                 if verbose: print 'takeout extract fail', str(e)
             try:
                 waiterService = soup2.find('dd',
-                        {'class':'attr-RestaurantsTableService'}).getText()
+                                           {'class':'attr-RestaurantsTableService'}).getText()
             except Exception, e:
                 if verbose: print 'waiterService extract fail', str(e)
             try:
@@ -196,7 +201,7 @@ def crawl_page(zipcode, page_num, verbose=False):
                 if verbose: print 'caters extract fail', str(e)
             try:
                 wheelchairAccessible = soup2.find('dd',
-                    {'class':'attr-WheelchairAccessible'}).getText()
+                                                  {'class':'attr-WheelchairAccessible'}).getText()
             except Exception, e:
                 if verbose: print 'wheelchairAccessible extract fail', str(e)
 
@@ -229,7 +234,7 @@ def crawl_page(zipcode, page_num, verbose=False):
         if tv: print 'tv:', tv
         if caters: print 'caters:', caters
         if wheelchairAccessible: print 'wheelchairAccessible:', wheelchairAccessible
-
+        if website: print 'website:',website
         print '=============='
         # extracted.append((title, categories, rating, img, addr, phone, price, menu,
         #    creditCards, parking, attire, groups, kids, reservations, delivery, takeout,
