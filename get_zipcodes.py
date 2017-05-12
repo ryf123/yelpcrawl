@@ -4,6 +4,7 @@ from BeautifulSoup import BeautifulSoup
 
 ROOT_URL = "http://www.aip2.com/zip.htm"
 
+
 def state_to_zipcodes(state_url):
     html = urllib2.urlopen(state_url).read()
     # Note the preceding space!!
@@ -12,11 +13,13 @@ def state_to_zipcodes(state_url):
     assert (len(zips) > 25)
     return zips
 
+
 def write_zips(zips):
     f = open('zipcodes.txt', 'a+')
     for z in zips:
         f.write(str(z)+'\r\n')
     f.close()
+
 
 def extract_states(ROOT_URL):
     html = urllib2.urlopen(ROOT_URL).read()
